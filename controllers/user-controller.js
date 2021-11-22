@@ -9,6 +9,9 @@ const userController = {
             .populate({
                 path: 'thoughts'
             })
+            .populate({
+                path: 'friends'
+            })
             .then(dbUserData => res.json(dbUserData))
             .catch(err => {
                 console.log(err);
@@ -21,6 +24,9 @@ const userController = {
         User.findOne({ _id: params.id })
         .populate({
             path: 'thoughts'
+        })
+        .populate({
+            path: 'friends'
         })
         .then(dbUserData => {
             if(!dbUserData) {
@@ -100,6 +106,9 @@ const userController = {
             {$pull: { friends: params.friendId }}, {new: true} )
             .populate({
                 path: 'friends'
+            })
+            .populate({
+                path: 'thoughts'
             })
             .then(dbUserData => {
                 if(!dbUserData) {
