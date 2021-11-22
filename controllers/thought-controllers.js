@@ -63,7 +63,7 @@ const thoughtController = {
                 { _id: body.userId },
                 { $push: { thoughts: dbThoughtData._id }},
                 { new: true}
-            );
+            )
         })
         .then(dbUserData => {
             if(!dbUserData) {

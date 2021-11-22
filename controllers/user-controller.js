@@ -1,3 +1,4 @@
+const { truncate } = require('fs/promises');
 const { User, Thought } = require('../models');
 
 
@@ -56,13 +57,19 @@ const userController = {
 
     //delete user
     deleteUser({ params }, res) {
-        User.findOneAndDelete({ _id: params.id })
-        .then(dbUserData => {
-            if (!dbUserData) {
-                res.status(404).json({ message: 'no user found with this id!'})
+        User.findOneAndDelete({ _id: params.id }, {new: true})
+        .then(deletedUser => {
+            if(!deletedUser){
+                return res.status(404).json({ message: 'no user with this id!'})
+            }
+            Thought.findAndDeleteMany({ userId: params.id})
+        })
+        .then(dbThoughtData => { 
+            if(!dbThoughtData) {
+                res.json({ message: "deleted user, but user has no associated thoughts to be deleted."})
                 return;
             }
-            res.json(dbUserData);
+            res.json({message: 'Deleted User and associated thoughts!'});
         })
         .catch(err => res.status(400).json(err));
     },
@@ -73,8 +80,10 @@ const userController = {
             {$push: { friends: params.friendId }},
             {new: true})
             .populate({
-                path: 'friends'
+               path: 'friends',
+               select: '-__v'
             })
+            .select('-__v')
             .then(dbUserData => {
                 if(!dbUserData) {
                     res.status(404).message({ message: 'no user found with this id!'});
